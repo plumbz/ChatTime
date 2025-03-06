@@ -1,8 +1,9 @@
 import { GiftedChat } from "react-native-gifted-chat";
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Platform, KeyboardAvoidingView } from 'react-native';
+import { collection, addDoc, onSnapshot, query, where } from "firebase/firestore";
 
-const Chat = ({ route, navigation }) => {
+const Chat = ({ db, route, navigation }) => {
     const { name, backgroundColor } = route.params; //handle the props
     const [messages, setMessages] = useState([]);
     const onSend = (newMessages) => {

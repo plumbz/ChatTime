@@ -9,22 +9,40 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Create the navigator
 const Stack = createNativeStackNavigator();
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 const App = () => {
+  // Your web app's Firebase configuration
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWMhu2mKK-mPFoa-s_m6uXKlPV00GqtRg",
+    authDomain: "chattime-30817.firebaseapp.com",
+    projectId: "chattime-30817",
+    storageBucket: "chattime-30817.firebasestorage.app",
+    messagingSenderId: "543340592709",
+    appId: "1:543340592709:web:c0398d482f3708b020ad2c"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // Initialize Cloud Firestore and get a reference to the service
+  const db = getFirestore(app);
+
   return (
 
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Screen1"
+        initialRouteName="Start"
       >
         <Stack.Screen
-          name="Screen1"
+          name="Start"
           component={Start}
         />
-        <Stack.Screen
-          name="Screen2"
-          component={Chat}
-        />
+        <Stack.Screen name="Chat">
+          {props => <Chat db={db} {...props} />}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

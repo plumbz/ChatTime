@@ -1,11 +1,23 @@
 import { useState } from 'react';
-import { ImageBackground, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { ImageBackground, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert } from 'react-native';
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 const image = require('../assets/Background.png');
 // Array of colors for the circles (your specified color options)
 const circleColors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
 
 const Start = ({ navigation }) => {
+    const auth = getAuth();
+    const signInUser = (name) => {
+        signInAnonymously(auth)
+            .then(result => {
+                navigation.navigate('Chat', { name: name, backgroundColor: circleColors[selectedCircle] });
+                Alert.alert("Signed in Successfully!");
+            })
+            .catch((error) => {
+                Alert.alert("Unable to sign in, try later again.");
+            })
+    }
     const [name, setName] = useState('');
     const [selectedCircle, setSelectedCircle] = useState(null); //Track the selected circle
 
@@ -48,7 +60,7 @@ const Start = ({ navigation }) => {
                         {/* Use TouchableOpacity with custom text style */}
                         <TouchableOpacity
                             style={styles.customButton} // Custom button style
-                            onPress={() => navigation.navigate('Screen2', { name: name, backgroundColor: circleColors[selectedCircle] })} // Pass the selected color
+                            onPress={() => signInUser(name)} // Pass the selected color
                         >
                             <Text style={styles.buttonText}>Start Chatting</Text>
                         </TouchableOpacity>
