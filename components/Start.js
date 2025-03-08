@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ImageBackground, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert } from 'react-native';
+import { ImageBackground, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert, SafeAreaView, Platform } from 'react-native';
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 const image = require('../assets/Background.png');
@@ -11,7 +11,7 @@ const Start = ({ navigation }) => {
     const signInUser = (name) => {
         signInAnonymously(auth)
             .then(result => {
-                navigation.navigate('Chat', { name: name, backgroundColor: circleColors[selectedCircle] });
+                navigation.navigate('Chat', { userID: result.user.uid, name: name, backgroundColor: circleColors[selectedCircle] });
                 Alert.alert("Signed in Successfully!");
             })
             .catch((error) => {
@@ -26,35 +26,37 @@ const Start = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ImageBackground source={image} resizeMode="cover" style={styles.image}>
-                <View style={styles.title}>
-                    <Text style={styles.titleText}>Chat Time!</Text>
-                </View>
+                <Text style={styles.titleText}>Chat Time!</Text>
                 {/* Container with white background. Every elements are wrapped 
                     inside seperate containers for better responsive behavior*/}
-                <View style={styles.innerContainer}>
-                    <TextInput
-                        style={styles.textInput}
-                        value={name}
-                        onChangeText={setName}
-                        placeholder='Your name'
-                        placeholderTextColor="rgba(117, 112, 131, 0.5)" // Placeholder color with 50% opacity
-                    />
+                <KeyboardAvoidingView style={styles.innerContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={styles.textInput}
+                            value={name}
+                            onChangeText={setName}
+                            placeholder='Your name'
+                            placeholderTextColor="rgba(117, 112, 131, 0.5)" // Placeholder color with 50% opacity
+                        />
+                    </View>
                     {/* Row of circles */}
-                    <Text style={styles.colorText}>Choose Background Color</Text>
                     <View style={styles.circleContainer}>
-                        {Array.from({ length: 4 }).map((_, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[styles.circle, { backgroundColor: circleColors[index], marginLeft: index === 0 ? 0 : 20 }, // Apply circle color
-                                selectedCircle === index && styles.selectedCircle, // Highlight the selected circle
-                                ]}
-                                onPress={() => handlePress(index)} // Pass the circle index (1-based)
-                            >
+                        <Text style={styles.colorText}>Choose Background Color</Text>
+                        <View style={styles.circleButtonContainer}>
+                            {Array.from({ length: 4 }).map((_, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[styles.circle, { backgroundColor: circleColors[index], marginLeft: index === 0 ? 0 : 20 }, // Apply circle color
+                                    selectedCircle === index && styles.selectedCircle, // Highlight the selected circle
+                                    ]}
+                                    onPress={() => handlePress(index)} // Pass the circle index (1-based)
+                                >
 
-                            </TouchableOpacity>
-                        ))}
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
                     <View style={styles.buttonContainer}>
                         {/* Use TouchableOpacity with custom text style */}
@@ -65,9 +67,9 @@ const Start = ({ navigation }) => {
                             <Text style={styles.buttonText}>Start Chatting</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </ImageBackground>
-        </View>
+        </SafeAreaView >
     );
 }
 
@@ -81,46 +83,49 @@ const styles = StyleSheet.create({
     },
     image: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         alignItems: 'center', // Centering the content inside ImageBackground
         width: '100%', // Ensures the background image covers the entire screen
     },
-    textInput: {
+    innerContainer: {
+        height: '44%', // Set the inner container to 44% of the screen height
+        width: '88%',  // Optionally set width to something like 90% of the container's width
+        justifyContent: 'center', // Vertically center the content inside the inner container
+        alignItems: 'center',  // Horizontally center the content
+        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Optional background with slight transparency
+    },
+    inputContainer: {
+        flex: 3,
         width: "88%",
-        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textInput: {
+        width: "100%",
+        padding: 15,
         borderWidth: 1,
-        marginBottom: 20,
         fontSize: 16, // Font size for the input text
         color: "#757083", // Text color for input text
         fontWeight: 300,
-        marginTop: 0,
-        height: 60,
-
-    },
-    customButton: {
-        backgroundColor: '#757083', // Button background color
-        paddingVertical: 12, // Padding for vertical size
-        paddingHorizontal: 32, // Padding for horizontal size
-        borderRadius: 5, // Optional border radius for rounded corners
-        alignItems: 'center', // Center the text horizontally
-        justifyContent: 'center', // Center the text vertically
-        height: 60,
-    },
-    buttonText: {
-        fontSize: 16, // Font size
-        fontWeight: '600', // Font weight
-        color: '#FFFFFF', // Font color
-    },
-    buttonContainer: {
-        width: '88%', // Make the button container 88% of the inner container's width
-        marginTop: 20, // Optional margin for spacing
-        height: 60,
-
     },
     circleContainer: {
-        flexDirection: 'row',  // Align the circles horizontally
-        justifyContent: 'center',  // Center the circles horizontally
-        marginBottom: 50, // Add some spacing between the circles and the button
+        flex: 5,
+        width: "88%",
+        justifyContent: "center",
+        alignItems: "flex-start",
+    },
+    colorText: {
+        fontSize: 16,
+        fontWeight: "300",
+        color: "#757083",
+        opacity: 1,
+        marginBottom: 20,
+    },
+    circleButtonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
     },
     circle: {
         width: 50, // Width of each circle
@@ -137,33 +142,31 @@ const styles = StyleSheet.create({
         borderWidth: 3, // Increase border width when selected
 
     },
-    colorText: {
-        fontSize: 16,
-        fontWeight: "300",
-        color: "#757083",
-        opacity: 1,
-        marginBottom: 20,
+    buttonContainer: {
+        flex: 3,
+        width: '88%', // Make the button container 88% of the inner container's width
+    },
+    customButton: {
+        backgroundColor: '#757083', // Button background color
+        paddingVertical: 12, // Padding for vertical size
+        paddingHorizontal: 32, // Padding for horizontal size
+        borderRadius: 5, // Optional border radius for rounded corners
+        alignItems: 'center', // Center the text horizontally
+        justifyContent: 'center', // Center the text vertically
+        height: 60,
+    },
+    buttonText: {
+        fontSize: 16, // Font size
+        fontWeight: '600', // Font weight
+        color: '#FFFFFF', // Font color
     },
     titleText: {
         color: 'white',
         fontSize: 45,
         fontWeight: 600,
+        height: "40%"
     },
-    title: {
-        marginBottom: 280,  // Add space below the title
-        marginTop: 100, // Move the title further up by increasing marginTop
-    },
-    innerContainer: {
-        height: '44%', // Set the inner container to 44% of the screen height
-        width: '88%',  // Optionally set width to something like 90% of the container's width
-        justifyContent: 'top', // Vertically center the content inside the inner container
-        alignItems: 'center',  // Horizontally center the content
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Optional background with slight transparency
-        paddingTop: 15,
-        marginBottom: 0,
-        padding: 0,
 
-    },
 });
 
 export default Start;
