@@ -24,7 +24,11 @@
     "react-native-reanimated": "~3.16.1",
     "react-native-get-random-values": "~1.11.0",
     "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-community/netinfo": "11.4.1"
+    "@react-native-community/netinfo": "11.4.1",
+    "expo-image-picker": "~16.0.6",
+    "react-native-maps": "1.18.0",
+    "expo-location": "~18.0.7",
+    "@expo/react-native-action-sheet": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
