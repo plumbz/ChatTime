@@ -2,8 +2,9 @@ import { TouchableOpacity, View, Text, StyleSheet, Alert } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, userID, userName }) => {
+const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, userID, userName, storage }) => {
     const actionSheet = useActionSheet();
 
     const onActionPress = () => {
@@ -36,8 +37,29 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, userID, userName }
         if (permissions?.granted) {
             let result = await ImagePicker.launchImageLibraryAsync();
             if (!result.canceled) {
-                console.log('uploading and uploading the image occurs here');
-            } else Alert.alert("Permissions haven't been granted.");
+                const imageURI = result.assets[0].uri;
+                const uniqueRefString = generateReference(imageURI);
+                const response = await fetch(imageURI);
+                const blob = await response.blob();
+                const newUploadRef = ref(storage, uniqueRefString);
+                uploadBytes(newUploadRef, blob).then(async (snapshot) => {
+                    console.log('file has been uploaded');
+                    const imageURL = await getDownloadURL(snapshot.ref)
+                    onSend([
+                        {
+                            _id: Math.round(Math.random() * 1000000),
+                            createdAt: new Date(),
+                            user: {
+                                _id: userID,
+                                name: userName,
+                            },
+                            image: imageURL,
+
+                        },
+                    ]);
+                });
+            }
+            else Alert.alert("Permissions haven't been granted.");
         }
     }
 
@@ -74,6 +96,11 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, userID, userName }
         } else Alert.alert("Permissions haven't been granted.");
     }
 
+    const generateReference = (uri) => {
+        const timeStamp = (new Date()).getTime();
+        const imageName = uri.split("/")[uri.split("/").length - 1];
+        return `${userID}-${timeStamp}-${imageName}`;
+    }
 
     return (
         <TouchableOpacity style={styles.container} onPress={onActionPress}>
