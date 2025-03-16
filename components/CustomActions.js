@@ -55,7 +55,6 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, userID, userName, 
         const response = await fetch(imageURI);
         const blob = await response.blob();
         uploadBytes(newUploadRef, blob).then(async (snapshot) => {
-            console.log('file has been uploaded');
             const imageURL = await getDownloadURL(snapshot.ref)
             onSend([
                 {
