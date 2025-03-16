@@ -27,3 +27,18 @@ Data is stored both online and offline.
     Gifted Chat (Chat UI library)
     Google Firebase (Firestore Database, Cloud Storage, Authentication)
     AsyncStorage (Local storage)
+    Android studio (emulate andriod device)
+
+# Installation
+1. Clonethis repository:
+git clone <your-repository-url>
+
+2. Navigate the project directory
+cd chatTime
+
+3. install dependencies:
+npm install
+
+4. Start the app:
+npm start
+
